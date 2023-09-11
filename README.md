@@ -1,8 +1,20 @@
 
 
-### 说明
+### steam-开箱回收模式介绍
 
-​	1.该篇主要阐述CSOL饰品锚定的自动交易流程，详情查看如下流程图：
+目的：解决csgo开箱网业务风险问题，完善用户取回体验流程，提升体验度方式：
+
+1.针对饰品交易平台开发对应接口的发货接口（以下以zbt举例，或者igxe等）
+
+2.使用机器人交易模式 锚定货物 主动索取物品
+
+  1.开发机器人交易配置steam账户和密码 
+
+  2.实现steam bot的自动化 索取 玩家物品的操作
+
+  3,通过锚定货物 物品价值 实现站内加款
+
+以下阐述CSOL饰品锚定的自动交易流程，详情查看如下流程图：
 
 ![CSOL交易锚定流程图](https://github.com/Tanxing1024/steam-boot/blob/main/csol.png)
 
@@ -10,7 +22,7 @@
 
 
 
-​	3.交易机器人项目地址：<u>**https://github.com/Tanxing1024/steam-boot**</u>，项目主要包含机器人登陆、添加机器人、发送stem游戏饰品报价、steam报价自动确认、取消报价、获取库存等接口，能够直接无需任何成本使用， [文档地址文档](./steam-boot.md) 。需要提前准备steam账号，解除steam手机app令牌再绑定需要等待7天才开放市场， 添加机器人时需要依赖令牌中的shared secret（共享密钥）identity secret（身份密钥） 用于令牌随机数生成和自动确认和发起交易，具体获取方法参考：<u>**https://zhuanlan.zhihu.com/p/542180497**</u>，项目内提供SDA1.0 windows的软件包、使用方法自行百度。
+​	3.交易机器人项目地址：<u>**https://github.com/Tanxing1024/steam-boot**</u>，项目主要包含机器人登陆、添加机器人、发送stem游戏饰品报价、steam报价自动确认、取消报价、获取库存等接口，能够直接无需任何成本使用， [文档地址文档](./steam-boot.html) 。需要提前准备steam账号，解除steam手机app令牌再绑定需要等待7天才开放市场， 添加机器人时需要依赖令牌中的shared secret（共享密钥）identity secret（身份密钥） 用于令牌随机数生成和自动确认和发起交易，具体获取方法参考：**https://zhuanlan.zhihu.com/p/542180497**，项目内提供SDA1.0 windows的软件包、使用方法自行百度。
 
 ​	
 
