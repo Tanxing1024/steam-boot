@@ -10,7 +10,7 @@
 
 
 
-​	3.交易机器人项目地址：<u>**https://github.com/Tanxing1024/steam-boot**</u>，项目主要包含机器人登陆、添加机器人、发送stem游戏饰品报价、steam报价自动确认、取消报价、获取库存等接口，能够直接无需任何成本使用， [文档地址文档](./steam-boot.html) 。需要提前准备steam账号，解除steam手机app令牌再绑定需要等待7天才开放市场， 添加机器人时需要依赖令牌中的shared secret（共享密钥）identity secret（身份密钥） 用于令牌随机数生成和自动确认和发起交易，具体获取方法参考：**https://zhuanlan.zhihu.com/p/542180497**，项目内提供SDA1.0 windows的软件包、使用方法自行百度。
+​	3.交易机器人项目地址：<u>**https://github.com/Tanxing1024/steam-boot**</u>，项目主要包含机器人登陆、添加机器人、发送stem游戏饰品报价、steam报价自动确认、取消报价、获取库存等接口，能够直接无需任何成本使用， [文档地址文档](./steam-boot.md) 。需要提前准备steam账号，解除steam手机app令牌再绑定需要等待7天才开放市场， 添加机器人时需要依赖令牌中的shared secret（共享密钥）identity secret（身份密钥） 用于令牌随机数生成和自动确认和发起交易，具体获取方法参考：**https://zhuanlan.zhihu.com/p/542180497**，项目内提供SDA1.0 windows的软件包、使用方法自行百度。
 
 ​	
 
