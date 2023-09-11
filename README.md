@@ -4,7 +4,7 @@
 
 ​	1.该篇主要阐述CSOL饰品锚定的自动交易流程，详情查看如下流程图：
 
-![NPM version](https://github.com/Tanxing1024/steam-boot/csol.png)
+![CSOL交易锚定流程图](https://github.com/Tanxing1024/steam-boot/csol.png)
 
 ​	2.用户选择背包内的CSOL饰品在系统内进行锚定，整笔交易无需人工干预、所有操作为自动化。除开第三方平台提供steam饰品外，其中steam交易机器人是此次交易中的核心，用户发起后由内部系统向托管机器人索取用户CSOL饰品且发起steam交易、用户在steam中收到交易信息确认后即可完成锚定动作，确认锚定后系统根据业务规则选择饰品或内部代币进行补偿，从而完成整个锚定流程。
 
