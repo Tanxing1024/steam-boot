@@ -274,7 +274,7 @@ noauth
 > 已完成
 
 #### 接口URL
-> /api/v1/2504460/inventory/1
+> /api/v1/730/inventory/1
 
 #### 请求方式
 > GET
@@ -282,6 +282,38 @@ noauth
 #### Content-Type
 > form-data
 
+#### 认证方式
+```text
+noauth
+```
+#### 预执行脚本
+```javascript
+暂无预执行脚本
+```
+#### 后执行脚本
+```javascript
+暂无后执行脚本
+```
+## /steam 机器人/获取对方库存
+```text
+暂无描述
+```
+#### 接口状态
+> 已完成
+
+#### 接口URL
+> /api/v1/730/inventory/1/referer
+
+#### 请求方式
+> POST
+
+#### Content-Type
+> form-data
+
+#### 请求Body参数
+参数名 | 示例值 | 参数类型 | 是否必填 | 参数描述
+--- | --- | --- | --- | ---
+steamUrl | - | String | 是 | 交易连接
 #### 认证方式
 ```text
 noauth
