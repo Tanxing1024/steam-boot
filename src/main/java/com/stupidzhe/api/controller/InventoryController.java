@@ -44,4 +44,21 @@ public class InventoryController {
         }
         return new ResultBean(false, "获取失败");
     }
+
+    /**
+     * 获取对方库存json
+     */
+    @RequestMapping(value = "/{bot_id}/referer", method = RequestMethod.POST)
+    public ResultBean getInventoryOthers(@PathVariable("bot_id") String botId,
+                                         @PathVariable("api_id") String apiId, String steamUrl) {
+        Bot bot = botCache.getBot(apiId + ":" + botId);
+        if (null == bot) {
+            return new ResultBean(false, "获取失败");
+        }
+        String content = inventoryService.getInventoryOthers(bot, apiId, steamUrl);
+        if (null != content) {
+            return new ResultBean(true, content);
+        }
+        return new ResultBean(false, "获取失败");
+    }
 }
