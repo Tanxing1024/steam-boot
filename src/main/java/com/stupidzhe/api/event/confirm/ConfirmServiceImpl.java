@@ -1,5 +1,7 @@
 package com.stupidzhe.api.event.confirm;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.stupidzhe.api.bean.HttpBean;
 import com.stupidzhe.api.domain.Bot;
 import com.stupidzhe.api.domain.Confirmation;
@@ -66,7 +68,7 @@ public class ConfirmServiceImpl extends BaseService implements ConfirmService {
             return null;
         }
         if (!res.getResponse().contains("true")) {
-            log.error("确认交易报价失败:" + botRealNum + ":"  + offerId + ":" + confirmation.getConfId());
+            log.error("确认交易报价失败:" + botRealNum + ":" + offerId + ":" + confirmation.getConfId());
             tradeCache.addRecord(botRealNum, offerId);
             return null;
         }
@@ -80,9 +82,9 @@ public class ConfirmServiceImpl extends BaseService implements ConfirmService {
      *
      * @param bot 机器人
      */
-    public List<Confirmation> getConfirmations(Bot bot) {
+    public List<Confirmation> getConfirmations1(Bot bot) {
 
-        String url = "https://steamcommunity.com/mobileconf/conf";
+        String url = "https://steamcommunity.com/mobileconf/getlist";
         Map<String, String> params = new HashMap<>();
         params.put("p", bot.getDeviceId());
         params.put("a", bot.getSteamId());
@@ -135,6 +137,43 @@ public class ConfirmServiceImpl extends BaseService implements ConfirmService {
             confirmation.setReceiving(element.getElementsByClass("mobileconf_list_entry_description").get(0).getAllElements().get(2).text().trim());
             confirmation.setTime(element.getElementsByClass("mobileconf_list_entry_description").get(0).getAllElements().get(3).text().trim());
             confirmations.add(confirmation);
+        }
+        return confirmations;
+    }
+
+    public List<Confirmation> getConfirmations(Bot bot) {
+
+        String url = "https://steamcommunity.com/mobileconf/getlist";
+        Map<String, String> params = new HashMap<>();
+        params.put("p", bot.getDeviceId());
+        params.put("a", bot.getSteamId());
+        long time = TimeUtil.getTimeStamp();
+        String confKey = ConfirmUtil.getKey(bot.getIdentitySecret(), "conf", time);
+        params.put("k", confKey);
+        params.put("t", String.valueOf(time));
+        params.put("m", "android");
+        params.put("tag", "conf");
+
+        List<Confirmation> confirmations = new LinkedList<>();
+        Http http = bot.getHttp();
+
+        HttpBean res = http.request(url, "GET", params, bot.getCookies().toString(), true, null, false);
+        JSONObject parse = (JSONObject) JSONObject.parse(res.getResponse());
+        if (parse.getBoolean("success")) {
+            JSONArray conf = parse.getJSONArray("conf");
+            for (int i = 0; i < conf.size(); i++) {
+                JSONObject jsonObject = conf.getJSONObject(i);
+                Confirmation confirmation = new Confirmation();
+                confirmation.setIcon(jsonObject.getString("icon"));
+                confirmation.setConfId(jsonObject.getString("id"));
+                confirmation.setType(jsonObject.getString("type"));
+                confirmation.setCreator(jsonObject.getString("creator_id"));
+                confirmation.setKey(jsonObject.getString("nonce"));
+                confirmation.setTitle(jsonObject.getString("type_name"));
+                confirmation.setReceiving(jsonObject.getString("accept"));
+                confirmation.setTime(jsonObject.getString("creation_time"));
+                confirmations.add(confirmation);
+            }
         }
         return confirmations;
     }
