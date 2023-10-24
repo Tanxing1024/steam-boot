@@ -1,5 +1,7 @@
 package com.stupidzhe.api.event.login;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.stupidzhe.api.bean.DoLoginResultBean;
 import com.stupidzhe.api.bean.HttpBean;
@@ -34,8 +36,7 @@ public class LoginServiceImpl implements LoginService {
         this.botCache = botCache;
     }
 
-    @Override
-    public boolean login(Bot bot) throws LoginException {
+    public boolean login1(Bot bot) throws LoginException {
 
         Http Http = new Http();
         StringBuilder cookies = new StringBuilder("");
@@ -159,5 +160,42 @@ public class LoginServiceImpl implements LoginService {
 //            log.info(bot.getCookies());
         return true;
 
+    }
+
+    @Override
+    public boolean login(Bot bot) {
+        Http Http = new Http();
+        StringBuilder cookies = new StringBuilder("");
+        //需要发送的数据 need-send data
+        Map<String, String> data = new HashMap<>();
+        try {
+            data.put("password", bot.getUserPsw());
+            data.put("accountName", bot.getUserName());
+            data.put("code", ConfirmUtil.getGuard(bot.getSharedSecret()));
+            HttpBean res = Http.request("http://127.0.0.1:9002/login", "POST", data, null, true,
+                    null, false);
+            JSONObject parse = (JSONObject) JSON.parse(res.getResponse());
+            log.error("res:" + JSON.toJSONString(res));
+            if (parse.getInteger("code").equals(500)) {
+                log.error("登录失败:" + parse.getString("message"));
+                return false;
+            }
+            JSONObject data1 = parse.getJSONObject("data");
+            cookies.setLength(0);
+            cookies.append(data1.getString("cookies"));
+            String[] sessions = data1.getString("session").split("=");
+            bot.setSessionId(sessions[1]);
+            bot.setCookies(cookies);
+            bot.setHttp(Http);
+            bot.setDeviceId(ConfirmUtil.getDeviceID(bot.getSteamId()));
+            botCache.rmBufferBot(bot.getApiId() + ":" + bot.getBotNum());
+            botCache.addBot(bot.getApiId() + ":" + bot.getBotNum(), bot);
+            log.info(bot.getApiId() + ":" + bot.getBotNum() + " 登录成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("登录失败:" + e.getMessage());
+            return false;
+        }
+        return true;
     }
 }
