@@ -39,6 +39,16 @@ public class Bot implements Serializable {
 
     private String callBackUrl;
 
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    private String apiKey;
+
     public String getSessionId() {
         return sessionId;
     }

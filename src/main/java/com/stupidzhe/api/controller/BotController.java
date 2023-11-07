@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = PathConst.BASE1 + "/{api_id}/bot")
 public class BotController extends BaseController {
 
+
     private final LoginService loginService;
     private final BotCache botCache;
 
@@ -32,10 +33,18 @@ public class BotController extends BaseController {
      * @return 结果
      */
     @RequestMapping(path = "", method = RequestMethod.POST)
-    public ResultBean addBot(@RequestParam("user_account") String userAccount, @RequestParam("play_name") String playName,
-                             @RequestParam("user_psw") String userPsw, @RequestParam("steam_id") String steamId,
-                             @RequestParam("shared_secret") String sharedSecret, @RequestParam("identity_secret") String identitySecret,
-                             @RequestParam("bot_id") Integer botId, @RequestParam("callBackUrl") String callBackUrl, @PathVariable("api_id") String apiId) {
+    public ResultBean addBot(
+            @RequestParam("user_account") String userAccount,
+            @RequestParam("play_name") String playName,
+            @RequestParam("user_psw") String userPsw,
+            @RequestParam("steam_id") String steamId,
+            @RequestParam("shared_secret") String sharedSecret,
+            @RequestParam("identity_secret") String identitySecret,
+            @RequestParam("bot_id") Integer botId,
+            @RequestParam("callBackUrl") String callBackUrl,
+            @PathVariable("api_id") String apiId,
+            @RequestParam("api_key") String apiKey
+    ) {
         Bot bot = new Bot();
         bot.setUserName(userAccount);
         bot.setUserPsw(userPsw);
@@ -45,6 +54,7 @@ public class BotController extends BaseController {
         bot.setSharedSecret(sharedSecret);
         bot.setSteamId(steamId);
         bot.setApiId(apiId);
+        bot.setApiKey(apiKey);
         bot.setCallBackUrl(callBackUrl);
         try {
             boolean res = loginService.login(bot);
@@ -68,16 +78,23 @@ public class BotController extends BaseController {
         }
     }
 
+
     /**
      * 更新bot
      *
      * @return 结果
      */
     @RequestMapping(path = "/{botId}", method = RequestMethod.PUT)
-    public ResultBean updateBot(@RequestParam("user_account") String userAccount, @RequestParam("play_name") String playName,
-                                @RequestParam("user_psw") String userPsw, @RequestParam("steam_id") String steamId,
-                                @RequestParam("shared_secret") String sharedSecret, @RequestParam("identity_secret") String identitySecret,
-                                @RequestParam("bot_id") Integer botId, @PathVariable("api_id") String apiId) {
+    public ResultBean updateBot(@RequestParam("user_account") String userAccount,
+                                @RequestParam("play_name") String playName,
+                                @RequestParam("user_psw") String userPsw,
+                                @RequestParam("steam_id") String steamId,
+                                @RequestParam("shared_secret") String sharedSecret,
+                                @RequestParam("identity_secret") String identitySecret,
+                                @RequestParam("bot_id") Integer botId,
+                                @PathVariable("api_id") String apiId,
+                                @RequestParam("api_key") String apiKey
+    ) {
         Bot bot = botCache.getBot(apiId + ":" + botId);
         if (null == bot) {
             return new ResultBean(false, "更新失败:bot_id或api_id不匹配;");
@@ -89,8 +106,10 @@ public class BotController extends BaseController {
         bot.setIdentitySecret(identitySecret);
         bot.setSharedSecret(sharedSecret);
         bot.setSteamId(steamId);
+        bot.setApiKey(apiKey);
         return new ResultBean(true, gson.toJson(bot));
     }
+
 
     /**
      * 删除指定bot

@@ -32,8 +32,7 @@ public class InventoryController {
      * 获取库存json
      */
     @RequestMapping(value = "/{bot_id}", method = RequestMethod.GET)
-    public ResultBean getInventory(@PathVariable("bot_id") String botId,
-                                   @PathVariable("api_id") String apiId) {
+    public ResultBean getInventory(@PathVariable("bot_id") String botId, @PathVariable("api_id") String apiId) {
         Bot bot = botCache.getBot(apiId + ":" + botId);
         if (null == bot) {
             return new ResultBean(false, "获取失败");
@@ -49,8 +48,7 @@ public class InventoryController {
      * 获取对方库存json
      */
     @RequestMapping(value = "/{bot_id}/referer", method = RequestMethod.POST)
-    public ResultBean getInventoryOthers(@PathVariable("bot_id") String botId,
-                                         @PathVariable("api_id") String apiId, String steamUrl) {
+    public ResultBean getInventoryOthers(@PathVariable("bot_id") String botId, @PathVariable("api_id") String apiId, String steamUrl) {
         Bot bot = botCache.getBot(apiId + ":" + botId);
         if (null == bot) {
             return new ResultBean(false, "获取失败");
@@ -61,4 +59,22 @@ public class InventoryController {
         }
         return new ResultBean(false, "获取失败");
     }
+
+
+    /**
+     * 获取对方steamId
+     */
+    @RequestMapping(value = "/{bot_id}/steamId", method = RequestMethod.GET)
+    public ResultBean getSteamId(@PathVariable("bot_id") String botId, @PathVariable("api_id") String apiId, String steamUrl) {
+        Bot bot = botCache.getBot(apiId + ":" + botId);
+        if (null == bot) {
+            return new ResultBean(false, "获取失败");
+        }
+        String content = inventoryService.getSteamId(bot, steamUrl);
+        if (null != content) {
+            return new ResultBean(true, content);
+        }
+        return new ResultBean(false, "获取失败");
+    }
+
 }

@@ -1,8 +1,11 @@
 package com.stupidzhe.api.event.trade;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.stupidzhe.api.bean.AssertBean;
 import com.stupidzhe.api.bean.HttpBean;
+import com.stupidzhe.api.bean.ResultBean;
 import com.stupidzhe.api.bean.TradeSendBean;
 import com.stupidzhe.api.domain.Bot;
 import com.stupidzhe.api.domain.Http;
@@ -18,6 +21,7 @@ import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
@@ -65,8 +69,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
 
         TradeSendBean tradeSendBean = new TradeSendBean();
         tradeSendBean.setNewversion(true);
-        tradeSendBean.setVersion(1 + (botSend.getAssetid() != null ? botSend.getAssetid().size() : 0)
-                + (himSend.getAssetid() != null ? himSend.getAssetid().size() : 0));
+        tradeSendBean.setVersion(1 + (botSend.getAssetid() != null ? botSend.getAssetid().size() : 0) + (himSend.getAssetid() != null ? himSend.getAssetid().size() : 0));
 
         TradeSendBean.Me me = tradeSendBean.getMe();
         TradeSendBean.Me them = tradeSendBean.getThem();
@@ -96,9 +99,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         params.put("serverid", "1");
         log.info(params.toString());
         String co = bot.getCookies().toString();
-        res = Http.request("https://steamcommunity.com/tradeoffer/new/send",
-                HttpUtil.METHOD_POST, params, co, true,
-                "https://steamcommunity.com/tradeoffer/new/?partner=", false);
+        res = Http.request("https://steamcommunity.com/tradeoffer/new/send", HttpUtil.METHOD_POST, params, co, true, "https://steamcommunity.com/tradeoffer/new/?partner=", false);
 
         log.info(gson.toJson(res));
         if (!validateCode(res, bot)) {
@@ -139,9 +140,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         Map<String, String> params = new HashMap<>();
         params.put("sessionid", sessionId);
         Http Http = bot.getHttp();
-        res = Http.request(url,
-                "POST", params, bot.getCookies().toString(), true,
-                "https://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/", false);
+        res = Http.request(url, "POST", params, bot.getCookies().toString(), true, "https://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/", false);
         if (!validateCode(res, bot)) {
             throw new Exception("cancelTradeOffer error: session invalid");
         }
@@ -166,8 +165,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         Http Http = bot.getHttp();
         HttpBean res;
 
-        res = Http.request("https://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/",
-                "GET", null, bot.getCookies().toString(), true, "http://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/sent/", false);
+        res = Http.request("https://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/", "GET", null, bot.getCookies().toString(), true, "http://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/sent/", false);
         if (!validateCode(res, bot)) {
             return null;
         }
@@ -198,66 +196,54 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         return tradeOfferIdMap;
     }
 
+
     @Override
-    public int getBotTradeOffer(Bot bot) {
+    public ResultBean getBotTradeOffer(Bot bot) {
         try {
+
             Http Http = bot.getHttp();
             HttpBean res;
-
-            res = Http.request("https://steamcommunity.com/id/" + bot.getPlayName() + "/tradeoffers/sent/",
-                    "GET", null, bot.getCookies().toString(), true, "https://steamcommunity.com/", false);
+            String url = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=" + bot.getApiKey() + "&get_sent_offers=true&get_received_offers=true&get_descriptions=true&active_only=true&historical_only=false";
+            res = Http.request(url, "GET", null, bot.getCookies().toString(), true, "", false);
             int code = res.getCode();
             if (200 != code) {
-                validateCode(res, bot);
-                return 0;
+                return new ResultBean(false, "{message:'获取交易列表失败;'}");
             }
+
             String content = res.getResponse();
-            Document document = Jsoup.parse(content);
-            Elements elements = document.getElementsByClass("tradeoffer");
-            int elementSize = elements.size();
-
-            String realNum = bot.getApiId() + ":" + bot.getBotNum();
-            long count = tradeCheckCache.size(realNum);
-
-            // 接收的数
-            int acceptCount = 0;
-            for (int n = 0; n < count; n++) {
-                // 待验证的offerid
-                String successOfferId = tradeCheckCache.getRecord(realNum);
-
-                int m = 0;
-                for (Element element : elements) {
-                    m = 0;
-                    String offerId = element.getElementsByClass("tradeoffer").get(0).attr("id").split("_")[1];
-                    // 如果发现还在
-                    if (successOfferId.equals(offerId)) {
-                        tradeCheckCache.addRecord(realNum, successOfferId);
-                        break;
-                    }
-                    m++;
-                }
-                if (elementSize == m) {
-                    acceptCount++;
-                    try {
-                        sendConfirmMessage(successOfferId, "accepted", bot);
-                    } catch (Exception e) {
-                        // 如果对方服务器崩了
-                        tradeCheckCache.addRecord(realNum, successOfferId);
-                        log.error("客户服务器崩了");
-                    }
-                }
-
-            }
-            return acceptCount;
+            log.info("返回：" + content);
+            JSONObject result = JSON.parseObject(content);
+            return new ResultBean(true, result.getString("response"));
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("获取交易报价列表失败");
-            // 放入buffer，防止异步操作出现问题
-            botCache.removeBot(bot.getApiId() + ":" + bot.getBotNum());
-            botCache.addBufferBot(bot.getApiId() + ":" + bot.getBotNum(), bot);
-            return 0;
+            log.error("获取交易列表失败:" + e.getMessage());
         }
+        return new ResultBean(false, "{message:'获取交易列表失败;'}");
     }
+
+
+    @Override
+    public ResultBean getBotTradeOfferDetails(Bot bot, String offerId) {
+        try {
+
+            Http Http = bot.getHttp();
+            HttpBean res;
+            String url = "https://api.steampowered.com/IEconService/GetTradeOffer/v1/?key=" + bot.getApiKey() + "&tradeofferid=" + offerId + "&get_descriptions=true";
+            res = Http.request(url, "GET", null, bot.getCookies().toString(), true, "", false);
+            int code = res.getCode();
+            if (200 != code) {
+                return new ResultBean(false, "{message:'获取交易详情失败;'}");
+            }
+            String content = res.getResponse();
+            JSONObject result = JSON.parseObject(content);
+            return new ResultBean(true, result.getString("response"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("获取交易详情失败:" + e.getMessage());
+        }
+        return new ResultBean(false, "{message:'获取交易详情失败;'}");
+    }
+
 
     @Override
     public boolean acceptTradeOffer(String tradeOfferId, String partner, String botNum, boolean accept) {
@@ -278,9 +264,7 @@ public class TradeServiceImpl extends BaseService implements TradeService {
         }
         try {
             Http Http = bot.getHttp();
-            res = Http.request("https://steamcommunity.com/tradeoffer/" + tradeOfferId + acc,
-                    "POST", params, bot.getCookies().toString(), true,
-                    "https://steamcommunity.com/tradeoffer/" + tradeOfferId + "/", false);
+            res = Http.request("https://steamcommunity.com/tradeoffer/" + tradeOfferId + acc, "POST", params, bot.getCookies().toString(), true, "https://steamcommunity.com/tradeoffer/" + tradeOfferId + "/", false);
             if (200 != res.getCode()) {
                 validateCode(res, bot);
                 return false;

@@ -3,6 +3,8 @@ package com.stupidzhe.api.event.inventory;
 import com.stupidzhe.api.bean.HttpBean;
 import com.stupidzhe.api.domain.Bot;
 import com.stupidzhe.api.domain.Http;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class InventoryServiceImpl implements InventoryService {
 
     private static final Logger log = LoggerFactory.getLogger(InventoryServiceImpl.class);
-
+    
     @Override
     public String getInventory(Bot bot, String apiId) {
         Http http = bot.getHttp();
@@ -23,11 +25,12 @@ public class InventoryServiceImpl implements InventoryService {
         HttpBean res = http.request(url, "GET", null, bot.getCookies().toString(), true, null, false);
         int code = res.getCode();
         if (200 != code) {
-            log.error("请求库存失败:code=" + code);
+            log.error("请求库存失败:code=" + code + "| " +res.getResponse().toString());
             return null;
         }
         return res.getResponse();
     }
+
 
     @Override
     public String getInventoryOthers(Bot bot, String apiId, String referer) {
@@ -37,13 +40,15 @@ public class InventoryServiceImpl implements InventoryService {
         HttpBean res = http.request(url, "GET", null, bot.getCookies().toString(), true, referer, false);
         int code = res.getCode();
         if (200 != code) {
-            log.error("请求库存失败:code=" + code);
+            log.error("请求库存失败:code=" + code + "| " +res.getResponse().toString());
             return null;
         }
         return res.getResponse();
     }
 
-    private String getSteamId(Bot bot, String url) {
+
+
+    public String getSteamId(Bot bot, String url) {
         Http http = bot.getHttp();
         HttpBean res = http.request(url, "GET", null, bot.getCookies().toString(), true, null, false);
         int code = res.getCode();
@@ -62,4 +67,6 @@ public class InventoryServiceImpl implements InventoryService {
         int indexOf1 = html.indexOf("'", indexOf + 1);
         return html.substring(indexOf + 1, indexOf1);
     }
+
+
 }

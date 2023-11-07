@@ -15,9 +15,21 @@ public interface InventoryService {
 
     /**
      * 获取对方库存
+     *
      * @param bot
      * @param apiId
      * @return
      */
     String getInventoryOthers(Bot bot, String apiId, String referer);
+
+
+    /**
+     * 获取steamID
+     *
+     * @param bot
+     * @param url
+     * @return
+     */
+    String getSteamId(Bot bot, String url);
+
 }
